@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Calendar - Spring Boot</title>
+
+    <title>Calendar - Spring Boot</title>
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/spring.ico}" />
+    <link th:href="@{/jquery-ui.css}" rel="stylesheet">
+<!--    <link th:href="@{/fontawesome.min.css}" rel="stylesheet">-->
+    <link th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css}" rel="stylesheet">
+
+    <script th:src="@{/jquery-1.10.2.js}"></script>
+<!--    <script th:src="@{/jquery.twbsPagination.js}"></script>-->
+    <script th:src="@{/jquery-ui.js}"></script>
+    <style>
+        .ui-state-highlight, .ui-state-active {
+            background: green !important;
+            color: white !important;
+            border: 1px solid green !important;
+        }
+
+
+
+        .sat_day {
+            background: blueviolet !important;
+            color: white !important;
+        }
+
+        .ui-datepicker td.red a, .color_note {
+            color: #f00 !important;
+        }
+        .sun_day {
+            background: burlywood !important;
+            color: white !important;
+        }
+    </style>
+    <!-- Javascript -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(function () {
+            $("#datepicker-2").datepicker();
+            checkDateColor();
+            $(document).on("click","[data-handler=prev]",function() {
+                return checkDateColor();
+            });
+
+            $(document).on("click","[data-handler=next]",function() {
+                return checkDateColor();
+            });
+        });
+
+        function checkDateColor() {
+            var tdList = $("[data-handler=selectDay]");
+            for (let i = 0; i < tdList.length; i++) {
+                $(tdList[i]).children().click(function () {
+                    return false;
+                })
+                // if ($(tdList[i]).children().hasClass("ui-state-highlight") == true){
+                // 	$(tdList[i]).children().removeClass("ui-state-highlight");
+                // 	$(tdList[i]).children().removeClass("ui-state-active");
+                // }
+                const year = $(tdList[i]).attr("data-year");
+                const month = parseInt($(tdList[i]).attr("data-month")) + 1 + "";
+                let day = $(tdList[i]).children()[0].innerHTML;
+                if (day.length == 1) {
+                    day = "0" + day;
+                }
+                // console.log(tdList[i]);
+                // console.log(year);
+                // console.log(month);
+                // console.log(day);
+                const dateString = year + "-" + month + "-" + day;
+                $(tdList[i]).attr("date", dateString);
+                const date = new Date(year, month - 1, day);
+                //console.log(date)
+                const dayOfWeek = date.getDay();
+                console.log(dayOfWeek);
+                if (dayOfWeek == 6) {
+                    $(tdList[i]).children().addClass("sat_day");// thu 7
+                } else if (dayOfWeek == 0) {
+                    $(tdList[i]).children().addClass("sun_day");//chu nhat
+                } else {
+                    $(tdList[i]).children().addClass("");
+                }
+
+                const list = /*[[${list}]]*/ 'default';
+                if (list != null) console.log(list);
+
+                if (list != null) {
+                    for (let j = 0; j < list.length; j++) {
+                        if (list[j].date === dateString) {
+
+
+                            if (list[j].type == "出社") {
+
+                                if (dayOfWeek === 6) {
+                                    console.log(dayOfWeek)
+                                    let check = $(tdList[i]).children().hasClass("sat_day");// thu 7
+                                    // console.log(dateString, check);
+                                    if (check === true) {
+                                        $(tdList[i]).children().removeClass("sat_day");// thu 7
+                                    }
+                                } else if (dayOfWeek === 0) {
+                                    console.log(dayOfWeek)
+                                    let check = $(tdList[i]).children().hasClass("sun_day");// chu nhat
+                                    console.log(dateString, check);
+                                    if (check === true) {
+                                        $(tdList[i]).children().removeClass("sun_day");// chu nhat
+                                    }
+                                } else {
+                                    $(tdList[i]).children().removeClass("");
+                                }
+                            } else { // ngay nghỉ
+
+                                if (dayOfWeek == 6) {
+                                    let check = $(tdList[i]).children().hasClass("sat_day");// thu 7
+                                    if (check === false) {
+                                        $(tdList[i]).children().addClass("sat_day");// thu 7
+                                    }
+                                } else if (dayOfWeek == 0) {
+                                    let check = $(tdList[i]).children().hasClass("sun_day");// chu nhat
+                                    if (check === false) {
+                                        $(tdList[i]).children().addClass("sun_day");// chu nhat
+                                    }
+                                } else {
+                                    $(tdList[i]).children().addClass("sun_day");
+                                }
+                            }
+                            if (list[j].note.length > 0){
+                                $(tdList[i]).attr("title", list[j].note);
+                                /* $(tdList[i]).children().addClass("color_note"); */
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*]]>*/
+    </script>
+
+</head>
+
+<body>
+<div style="text-align: center">
+    <div id="datepicker-2" style="display: inline-block"></div>
+</div>
+
+
+<div align="center">
+    <a th:href="@{/admin}">管理ページへ</a>
+</div>
+</body>
+</html>
